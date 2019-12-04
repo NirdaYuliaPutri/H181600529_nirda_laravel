@@ -33,8 +33,9 @@ class GaleriController extends Controller
     }
 
     public function store(Request $request){
+        try{
 
-        DB::transaction(function () use ($request) {
+        DB::begintransaction();
             $input= $request->except('path');
      
             $Galeri=Galeri::create($input);
@@ -46,7 +47,11 @@ class GaleriController extends Controller
                 $Galeri->path="storage".substr($path,strpos($path,'/'));
                 $Galeri->save();
             }
-        }, 3);
+
+            DB::commit();
+        }catch(Exception $e){
+            DB::rollBack();
+        };
 
 
         return redirect(route('galeri.index'));
